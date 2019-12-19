@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Service List";
+}
+
+
+
+<table id="tbl_serviceList" class="display nowrap" style="width:100%">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Category Type</th>
+            <th>Category Service</th>
+            <th>Service Timing</th>
+        </tr>
+    </thead>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var categories = [];
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategories",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+                    categories = responsive;
+                }
+            }
+        });
+
+        var categoryTypes = [];
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategoryTypes",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+                    categoryTypes = responsive;
+                }
+            }
+        });
+
+        var categoryServices = [];
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategoryService",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+                    categoryServices = responsive;
+                }
+            }
+        });
+
+
+        var serviceRequest = null;
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetServiceRequests",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+                    serviceRequest = responsive;
+                }
+            }
+        });
+
+
+        $('#tbl_serviceList').DataTable({
+            data: serviceRequest ? serviceRequest : "",
+            columns: [
+                { data: 'name' },
+                {
+                    data: null, render: function (data, type, row, meta) {
+                        var categoryName = "";
+                        var filterdata = categories.filter(function (item) {
+                            return item.categoryId == data.categoryId;
+                        });
+                        if (filterdata != null && filterdata.length > 0) {
+                            categoryName = filterdata[0].categoryName;
+                        }
+                        return categoryName;
+                    }
+                },
+                {
+                    data: null, render: function (data, type, row, meta) {
+                        var categoryTypeName = "";
+                        var filterdata = categoryTypes.filter(function (item) {
+                            return item.categoryTypeId == data.categoryTypeId;
+                        });
+                        if (filterdata != null && filterdata.length > 0) {
+                            categoryTypeName = filterdata[0].categoryTypeName;
+                        }
+                        return categoryTypeName;
+                    }
+                },
+                {
+                    data: null, render: function (data, type, row, meta) {
+                        var categoryServiceName = "";
+                        var filterdata = categoryServices.filter(function (item) {
+                            return item.categoryServiceId == data.categoryServiceId;
+                        });
+                        if (filterdata != null && filterdata.length > 0) {
+                            categoryServiceName = filterdata[0].categoryServiceName;
+                        }
+                        return categoryServiceName;
+                    }
+                },
+                { data: 'serviceTiming' }
+            ],
+            deferRender: true,
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": false,
+            "bInfo": false,
+            "bAutoWidth": false,
+            "language": {
+                "infoEmpty": " "
+            }
+
+        });
+    });
+</script>

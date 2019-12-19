@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Servcie Request";
+}
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form id="serviceRequest">
+            <div class="form-group">
+                <label>Name</label>
+                <input type="text" placeholder="Name" id="txt_Name" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <div class="dropdown">
+                    <label>Category</label>
+                    <select id="ddl_category" placeholder="Category" onchange="loadType()" required>
+                        <option selected>Select Category</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="dropdown">
+                    <label>Category Type</label>
+                    <select id="ddl_categoryType" placeholder="Category Type" onchange="loadServiceType()" required>
+                        <option selected>Select Category Type</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="dropdown">
+                    <label>Category Service</label>
+                    <select id="ddl_categoryService" placeholder="Category Service">
+                        <option selected> Select Category Service</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Service Timing</label>
+                <input type="time" placeholder="Service Timing" id="txt_ServiceTiming" autocomplete="off" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategories",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+
+                    $.each(responsive, function (index, data) {
+
+                        $('#ddl_category').append($('<option></option>').val(data.categoryId).html(data.categoryName))
+                    });
+                }
+            }
+        });
+
+    });
+    $("#serviceRequest").submit(function (evt) {
+        debugger;
+
+        submitData();
+    });
+
+
+    function submitData() {
+
+        var serviceRequest = {};
+        serviceRequest.serviceRequestId = 0;
+        serviceRequest.name = $('#txt_Name').val();
+        serviceRequest.categoryId = $('#ddl_category').val();
+        serviceRequest.categoryTypeId = $('#ddl_categoryType').val();
+        serviceRequest.categoryServiceId = $('#ddl_categoryService').val();
+        serviceRequest.ServiceTiming = $('#txt_ServiceTiming').val();
+
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/SaveServiceRequest",
+            type: 'POST',
+            dataType: 'json',
+            async: false,
+            data: JSON.stringify(serviceRequest),
+            contentType: "application/json",
+            success: function (responsive) {
+
+            }
+        });
+    }
+
+    function loadType() {
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategoryTypes",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+
+                    var responsiveData = responsive.filter(function (itemdata) {
+                        return itemdata.categoryId == $('#ddl_category').val();
+                    });
+                    $('#ddl_categoryType option:not(:first)').remove();
+
+                    $.each(responsiveData, function (index, data) {
+
+                        $('#ddl_categoryType').append($('<option></option>').val(data.categoryTypeId).html(data.categoryTypeName))
+                    });
+                }
+            }
+        });
+    }
+
+    function loadServiceType() {
+
+        $.ajax({
+            url: "https://localhost:44315/api/HomeService/GetCategoryService",
+            type: 'GET',
+            dataType: 'json',
+            async: false,
+            contentType: "application/json",
+            success: function (responsive) {
+                if (responsive != null) {
+
+                    var responsiveData = responsive.filter(function (itemdata) {
+                        return itemdata.categoryTypeId == $('#ddl_categoryType').val();
+                    });
+                    $('#ddl_categoryService option:not(:first)').remove();
+
+                    $.each(responsiveData, function (index, data) {
+
+                        $('#ddl_categoryService').append($('<option></option>').val(data.categoryServiceId).html(data.categoryServiceName))
+                    });
+                }
+            }
+        });
+    }
+
+</script>
+
+
